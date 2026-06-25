@@ -226,7 +226,7 @@
         const data = window.dashboardData;
         if (!data) { document.body.innerHTML = "<h2>请在 data.js 中配置数据</h2>"; return; }
 
-        document.getElementById('currentDate').textContent = '📅 ' + data.date;
+        document.getElementById('currentDate').textContent = '📅 ' + new Date().toISOString().slice(0, 10);
         document.getElementById('jobCount').textContent = data.activeJobs + '个活跃岗位';
 
         const stages = data.stages;
@@ -314,7 +314,7 @@
             const highTwoFail = stages.find(s=>s.name==='二面不通过').high;
             const lowTwoFail = stages.find(s=>s.name==='二面不通过').low;
 
-            let summary = `📅 ${data.date} 数据总结：<br>`;
+            let summary = `📅 ${new Date().toISOString().slice(0, 10)} 数据总结：<br>`;
             summary += `1. 简历总量${totalResume}份（≥80分${data.resumeHigh}份，60-79分${data.resumeLow}份），总邀约${totalInvite}人（邀约率${((totalInvite/totalResume)*100).toFixed(1)}%）。<br>`;
             summary += `2. 高分段邀约率${highInviteRate}%，低分段邀约率${lowInviteRate}%。`;
 
