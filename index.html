@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>招聘数据看板 · 30个活跃岗位</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #f2f5f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: 'Segoe UI', Roboto, system-ui, -apple-system, sans-serif;
+            padding: 24px;
+        }
+        .dashboard {
+            max-width: 1100px;
+            width: 100%;
+            background: white;
+            border-radius: 28px;
+            box-shadow: 0 16px 36px rgba(0, 20, 40, 0.06);
+            padding: 28px 24px 24px;
+        }
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+        }
+        .header h2 {
+            font-size: 1.6rem;
+            font-weight: 600;
+            color: #0d2a3f;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .badge {
+            background: #e6edf6;
+            color: #17476e;
+            padding: 4px 14px;
+            border-radius: 40px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        .date {
+            font-size: 0.85rem;
+            color: #5f7182;
+            background: #f1f4fa;
+            padding: 6px 16px;
+            border-radius: 20px;
+        }
+        .main-layout {
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 24px;
+            margin-top: 8px;
+        }
+        @media (max-width: 800px) {
+            .main-layout { grid-template-columns: 1fr; }
+        }
+        .table-card, .funnel-panel {
+            background: #fafbfd;
+            border-radius: 20px;
+            padding: 16px;
+            border: 1px solid #eaf0f7;
+        }
+        .section-label, .summary-label {
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: #1b3852;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+        th {
+            text-align: left;
+            padding: 10px 6px;
+            background: #f2f6fc;
+            color: #2c4057;
+            font-weight: 600;
+            border-bottom: 1px solid #dde5f0;
+        }
+        td {
+            padding: 8px 6px;
+            border-bottom: 1px solid #eef2f7;
+            color: #1e3347;
+        }
+        .value-num {
+            font-weight: 600;
+            text-align: center;
+            min-width: 40px;
+        }
+        .col-high {
+            border-right: 2px solid #d0d9e6;
+        }
+        .legend-row {
+            display: flex;
+            gap: 20px;
+            font-size: 0.72rem;
+            color: #50667b;
+            margin-top: 12px;
+            padding-left: 4px;
+        }
+        .funnel-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .funnel-group { display: flex; flex-direction: column; gap: 4px; }
+        .funnel-title {
+            font-weight: 600;
+            font-size: 0.8rem;
+            color: #1e3b54;
+            margin-bottom: 4px;
+        }
+        .funnel-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+        .funnel-step {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 0.72rem;
+            height: 32px;
+            border-radius: 6px;
+            margin-bottom: 2px;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+        .step-label {
+            font-size: 0.65rem;
+            color: #2e425a;
+            margin-top: -2px;
+            margin-bottom: 8px;
+            text-align: center;
+            font-weight: 500;
+        }
+        .funnel-high .funnel-step { background: #2d6aa0; }
+        .funnel-low .funnel-step { background: #e68a3a; }
+        .conversion-text {
+            font-size: 0.6rem;
+            color: #5b6e82;
+            margin-top: -4px;
+            margin-bottom: 2px;
+        }
+        hr { border: 0.5px solid #e1e8f2; margin: 12px 0 6px; }
+        .summary-mini {
+            font-size: 0.72rem;
+            color: #385069;
+            display: flex;
+            justify-content: space-between;
+        }
+        .auto-summary {
+            background: #f4f8fd;
+            border-radius: 12px;
+            padding: 12px 16px;
+            font-size: 0.8rem;
+            color: #1f364b;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+<div class="dashboard">
+    <div class="header">
+        <h2>📋 招聘数据看板 <span class="badge" id="jobCount">30个活跃岗位</span></h2>
+        <span class="date" id="currentDate">📅 2026-06-24</span>
+    </div>
+
+    <div class="main-layout">
+        <div class="table-card">
+            <div class="section-label">📌 面试阶段状态明细</div>
+            <table>
+                <thead><tr><th>阶段</th><th style="text-align:center;">≥80分</th><th style="text-align:center; border-left:2px solid #d0d9e6;">60-79分</th></tr></thead>
+                <tbody id="stageTable"></tbody>
+            </table>
+            <div class="legend-row">
+                <span><span style="background:#2d6aa0; display:inline-block; width:10px; height:10px; border-radius:3px;"></span> ≥80分 (邀约<span id="inviteHighSpan">22</span>人)</span>
+                <span><span style="background:#e68a3a; display:inline-block; width:10px; height:10px; border-radius:3px;"></span> 60-79分 (邀约<span id="inviteLowSpan">8</span>人)</span>
+            </div>
+            <div style="font-size:0.7rem; color:#4c6078; margin-top:8px;" id="stageSummary"></div>
+        </div>
+
+        <div class="funnel-panel">
+            <div style="font-weight:600; font-size:0.9rem; color:#173753;">🔽 转化漏斗</div>
+            <div class="funnel-group funnel-high">
+                <div class="funnel-title">🔵 ≥80分简历漏斗</div>
+                <div id="funnelHigh"></div>
+            </div>
+            <hr>
+            <div class="funnel-group funnel-low">
+                <div class="funnel-title">🟠 60-79分简历漏斗</div>
+                <div id="funnelLow"></div>
+            </div>
+            <div class="summary-mini">
+                <span>📄 总简历<span id="totalResume">461</span></span>
+                <span>📩 总邀约<span id="totalInvite">30</span></span>
+                <span>✅ 二面通过<span id="totalPass">1</span></span>
+            </div>
+        </div>
+    </div>
+
+    <div style="margin-top:20px;">
+        <div class="section-label">📝 今日自动总结</div>
+        <div class="auto-summary" id="autoSummary"></div>
+    </div>
+</div>
+
+<script src="data.js"></script>
+<script>
+    (function() {
+        const data = window.dashboardData;
+        if (!data) { document.body.innerHTML = "<h2>请在 data.js 中配置数据</h2>"; return; }
+
+        document.getElementById('currentDate').textContent = '📅 ' + data.date;
+        document.getElementById('jobCount').textContent = data.activeJobs + '个活跃岗位';
+
+        const stages = data.stages;
+        const inviteHigh = data.inviteHigh;
+        const inviteLow = data.inviteLow;
+
+        const tbody = document.getElementById('stageTable');
+        let tableHtml = '';
+        stages.forEach(s => {
+            tableHtml += `<tr>
+                <td style="font-weight:500;">${s.name}</td>
+                <td class="value-num col-high" style="color:#1e3b54;">${s.high}</td>
+                <td class="value-num" style="color:#b45f2a; border-left:2px solid #d0d9e6;">${s.low}</td>
+            </tr>`;
+        });
+        tbody.innerHTML = tableHtml;
+
+        document.getElementById('inviteHighSpan').textContent = inviteHigh;
+        document.getElementById('inviteLowSpan').textContent = inviteLow;
+
+        const highOneSidePending = stages.find(s=>s.name==='已安排一面').high + stages.find(s=>s.name==='待一面').high;
+        const lowOneSidePending = stages.find(s=>s.name==='已安排一面').low + stages.find(s=>s.name==='待一面').low;
+        const highTwoSidePending = stages.find(s=>s.name==='安排二面').high + stages.find(s=>s.name==='待二面').high;
+        const lowTwoSidePending = stages.find(s=>s.name==='安排二面').low + stages.find(s=>s.name==='待二面').low;
+        document.getElementById('stageSummary').innerHTML = 
+            `⏳ 一面进行中: ≥80分${highOneSidePending}人 | 60-79分${lowOneSidePending}人 &nbsp; 🔄 二面进行中: ≥80分${highTwoSidePending}人 | 60-79分${lowTwoSidePending}人`;
+
+        const totalResume = data.resumeHigh + data.resumeLow;
+        const totalInvite = inviteHigh + inviteLow;
+        const totalPass = stages.find(s=>s.name==='二面通过').high + stages.find(s=>s.name==='二面通过').low;
+        document.getElementById('totalResume').textContent = totalResume;
+        document.getElementById('totalInvite').textContent = totalInvite;
+        document.getElementById('totalPass').textContent = totalPass;
+
+        const funnelHighData = [
+            { label: "简历", value: data.resumeHigh },
+            { label: "邀约", value: inviteHigh },
+            { label: "一面通过", value: stages.find(s=>s.name==='一面通过').high },
+            { label: "二面通过", value: stages.find(s=>s.name==='二面通过').high }
+        ];
+        const funnelLowData = [
+            { label: "简历", value: data.resumeLow },
+            { label: "邀约", value: inviteLow },
+            { label: "一面通过", value: stages.find(s=>s.name==='一面通过').low },
+            { label: "二面通过", value: stages.find(s=>s.name==='二面通过').low }
+        ];
+
+        function renderFunnel(containerId, dataArr, maxBase) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            const maxVal = maxBase || Math.max(...dataArr.map(d => d.value), 1);
+            let html = '<div class="funnel-container">';
+            dataArr.forEach((item, index) => {
+                const widthPercent = (item.value / maxVal) * 100;
+                let conversion = '';
+                if (index > 0 && dataArr[index-1].value > 0) {
+                    const rate = ((item.value / dataArr[index-1].value) * 100).toFixed(1);
+                    conversion = `<div class="conversion-text">转化 ${rate}%</div>`;
+                } else {
+                    conversion = '<div class="conversion-text" style="visibility:hidden;">-</div>';
+                }
+                html += `<div style="width:100%; display:flex; flex-direction:column; align-items:center;">
+                    <div class="funnel-step" style="width:${Math.max(widthPercent, 4)}%; min-width:40px;">${item.value}</div>
+                    <div class="step-label">${item.label}</div>
+                    ${conversion}
+                </div>`;
+            });
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        const commonMax = Math.max(
+            ...funnelHighData.map(d => d.value),
+            ...funnelLowData.map(d => d.value)
+        );
+        renderFunnel('funnelHigh', funnelHighData, commonMax);
+        renderFunnel('funnelLow', funnelLowData, commonMax);
+
+        // 自动总结
+        function generateSummary() {
+            const highInviteRate = (inviteHigh / data.resumeHigh * 100).toFixed(1);
+            const lowInviteRate = (inviteLow / data.resumeLow * 100).toFixed(1);
+            const highOnePass = stages.find(s=>s.name==='一面通过').high;
+            const highTwoPass = stages.find(s=>s.name==='二面通过').high;
+            const highTwoFail = stages.find(s=>s.name==='二面不通过').high;
+            const lowTwoFail = stages.find(s=>s.name==='二面不通过').low;
+
+            let summary = `📅 ${data.date} 数据总结：<br>`;
+            summary += `1. 简历总量${totalResume}份（≥80分${data.resumeHigh}份，60-79分${data.resumeLow}份），总邀约${totalInvite}人（邀约率${((totalInvite/totalResume)*100).toFixed(1)}%）。<br>`;
+            summary += `2. 高分段邀约率${highInviteRate}%，低分段邀约率${lowInviteRate}%。`;
+
+            if (highOnePass > 0 && highTwoPass <= 1) {
+                summary += ` 一面通过${highOnePass}人，但二面仅通过${highTwoPass}人，二面转化率偏低，建议重点复盘二面评估标准。`;
+            } else if (highTwoPass >= 2) {
+                summary += ` 二面通过${highTwoPass}人，流程推进良好。`;
+            }
+
+            if (highTwoFail > 0 || lowTwoFail > 0) {
+                summary += `<br>3. 二面不通过：≥80分${highTwoFail}人，60-79分${lowTwoFail}人，需关注失败原因。`;
+            }
+
+            const highPending = stages.find(s=>s.name==='待一面').high + stages.find(s=>s.name==='待二面').high;
+            const lowPending = stages.find(s=>s.name==='待一面').low + stages.find(s=>s.name==='待二面').low;
+            if (highPending + lowPending > 0) {
+                summary += `<br>4. 待安排面试：≥80分${highPending}人，60-79分${lowPending}人，请尽快推进避免流失。`;
+            }
+
+            if (data.resumeHigh - inviteHigh > 100) {
+                summary += `<br>5. ⚠️ 高分简历剩余${data.resumeHigh - inviteHigh}份未邀约，建议加大筛选力度。`;
+            }
+
+            return summary;
+        }
+
+        document.getElementById('autoSummary').innerHTML = generateSummary();
+    })();
+</script>
+</body>
+</html>
